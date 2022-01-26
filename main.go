@@ -61,7 +61,6 @@ func onReady() {
 	go func() {
 		ticker := time.NewTicker(60 * time.Second)
 		for {
-			<-ticker.C
 			if findProcess() {
 				if c.start() {
 					systray.SetIcon(icon.Data)
@@ -71,6 +70,7 @@ func onReady() {
 					systray.SetTemplateIcon(icon.Data, icon.Data)
 				}
 			}
+			<-ticker.C
 		}
 	}()
 }
