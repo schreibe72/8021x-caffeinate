@@ -1,0 +1,5 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export GIN_MODE=release
+cd $DIR/../Resources/
+./8021x-caffeinate
