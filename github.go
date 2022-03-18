@@ -20,30 +20,47 @@ type githubVersion struct {
 	EditURL                 string `json:"edit_url"`
 }
 
-func check4update(v string) (string, string) {
+func check4update(v string) (updateUrl, newVersion string) {
+	updateUrl = ""
+	newVersion = ""
 	u := fmt.Sprintf("%s/releases/latest", github_project_url)
+
 	client := &http.Client{}
+
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		log.Printf("error building Request: %s", err)
-		return "", ""
+		return
 	}
+
 	req.Header.Add("Accept", "application/json")
+
 	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("error doing Request: %s", err)
+		return
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
 		log.Printf("error fetching Request: %s", err)
-		return "", ""
+		return
 	}
+
 	var g githubVersion
 
 	if err := json.Unmarshal(body, &g); err != nil {
 		log.Printf("error unmarshaling body: %s\n%s", err, string(body))
-		return "", ""
+		return
 	}
+
 	if g.TagName == version {
-		return "", ""
+		return
 	}
-	return fmt.Sprintf("https://github.com%s", g.UpdateURL), g.TagName
+
+	updateUrl = fmt.Sprintf("https://github.com%s", g.UpdateURL)
+	newVersion = g.TagName
+
+	return updateUrl, newVersion
 }

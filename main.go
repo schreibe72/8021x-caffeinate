@@ -51,18 +51,19 @@ func onReady() {
 		defer ticker.Stop()
 		updateTicker := time.NewTicker(1 * time.Hour)
 		defer updateTicker.Stop()
-		updateUrl := ""
 
-		updateFunc := func() {
+		updateFunc := func() string {
 			u, nv := check4update(version)
 			if u != "" {
 				log.Printf("Enable %s %s", u, nv)
 				mVersion.Enable()
 				mVersion.SetTitle(fmt.Sprintf("%s -> %s", version, nv))
 				mVersion.SetTooltip("Click to go to update page")
+				return u
 			}
+			return ""
 		}
-		updateFunc()
+		updateUrl := updateFunc()
 
 		for {
 			select {
@@ -92,7 +93,7 @@ func onReady() {
 					}
 				}
 			case <-updateTicker.C:
-				updateFunc()
+				updateUrl = updateFunc()
 			}
 		}
 	}()
