@@ -8,11 +8,13 @@ import (
 
 	"git.manfredschreiber.de/8021x-caffeinate/icon"
 	"github.com/getlantern/systray"
+	"github.com/skratchdot/open-golang/open"
 )
 
 const searchProzess = "eapolclient"
 
 var c *process
+var version string
 
 func main() {
 	f, err := os.OpenFile("/tmp/8021x-caffeinate.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -32,6 +34,8 @@ func main() {
 
 func onReady() {
 	systray.SetTemplateIcon(icon.Data, icon.Data)
+	mVersion := systray.AddMenuItem(version, "Version")
+	mVersion.Disable()
 	mChecked := systray.AddMenuItemCheckbox("Permanent", "Activate Caffeinate permanent", false)
 	systray.AddSeparator()
 	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
@@ -44,6 +48,22 @@ func onReady() {
 
 	go func() {
 		ticker := time.NewTicker(60 * time.Second)
+		defer ticker.Stop()
+		updateTicker := time.NewTicker(1 * time.Hour)
+		defer updateTicker.Stop()
+		updateUrl := ""
+
+		updateFunc := func() {
+			u, nv := check4update(version)
+			if u != "" {
+				log.Printf("Enable %s %s", u, nv)
+				mVersion.Enable()
+				mVersion.SetTitle(fmt.Sprintf("%s -> %s", version, nv))
+				mVersion.SetTooltip("Click to go to update page")
+			}
+		}
+		updateFunc()
+
 		for {
 			select {
 			case <-mChecked.ClickedCh:
@@ -56,6 +76,9 @@ func onReady() {
 					mChecked.Check()
 					systray.SetIcon(icon.Data)
 				}
+			case <-mVersion.ClickedCh:
+				log.Printf("Open %s", updateUrl)
+				open.Run(updateUrl)
 			case <-ticker.C:
 				if !mChecked.Checked() {
 					if newProcess(searchProzess).findNameInProcesslist() {
@@ -68,6 +91,8 @@ func onReady() {
 						}
 					}
 				}
+			case <-updateTicker.C:
+				updateFunc()
 			}
 		}
 	}()

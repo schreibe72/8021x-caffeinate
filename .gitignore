@@ -1,3 +1,4 @@
-**/Contents/Resources/8021x-caffeinate
+**/Contents/Resources/8021x-caffeinate.arm64
+**/Contents/Resources/8021x-caffeinate.x86_64
 .DS_Store
 **/build/8021x-caffeinate.*.zip
