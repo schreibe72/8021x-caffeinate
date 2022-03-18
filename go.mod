@@ -2,7 +2,10 @@ module git.manfredschreiber.de/8021x-caffeinate
 
 go 1.17
 
-require github.com/getlantern/systray v1.1.0
+require (
+	github.com/getlantern/systray v1.1.0
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
+)
 
 require (
 	github.com/getlantern/context v0.0.0-20190109183933-c447772a6520 // indirect
